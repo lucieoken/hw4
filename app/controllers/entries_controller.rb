@@ -16,22 +16,35 @@
 # end
 
 class EntriesController < ApplicationController
-  before_action :require_user
-
   def index
-    @entries = @current_user.entries
+    @user = User.find_by({ "id" => session["user_id"] })
+    if @user
+      @entries = @user.entries
+    else
+      redirect_to login_path, notice: "Please log in to view your entries."
+    end
   end
 
   def new
-    @entry = @current_user.entries.build
+    @user = User.find_by({ "id" => session["user_id"] })
+    if @user
+      @entry = @user.entries.build
+    else
+      redirect_to login_path, notice: "Please log in to create a new entry."
+    end
   end
 
   def create
-    @entry = @current_user.entries.build(entry_params)
-    if @entry.save
-      redirect_to place_path(@entry.place), notice: 'Entry created successfully.'
+    @user = User.find_by({ "id" => session["user_id"] })
+    if @user
+      @entry = @user.entries.build(entry_params)
+      if @entry.save
+        redirect_to place_path(@entry.place), notice: 'Entry logged successfully!'
+      else
+        render :new
+      end
     else
-      render :new
+      redirect_to login_path, notice: "Please log in to create an entry."
     end
   end
 
@@ -41,4 +54,3 @@ class EntriesController < ApplicationController
     params.require(:entry).permit(:title, :description, :occurred_on, :image)
   end
 end
-
