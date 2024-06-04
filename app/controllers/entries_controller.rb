@@ -54,3 +54,4 @@ class EntriesController < ApplicationController
     params.require(:entry).permit(:title, :description, :occurred_on, :image)
   end
 end
+
